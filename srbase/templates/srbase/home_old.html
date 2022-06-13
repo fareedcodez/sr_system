@@ -1,0 +1,39 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<style>
+    .home-container{
+        display :grid;
+        grid-template-columns: 1fr 3fr 1fr
+    }
+        
+</style>
+
+<div class = "home-container">
+
+    <div> 
+      {% include 'srbase/college.html' %}
+    </div>
+
+    <div>
+
+        <div>
+            <h5> {{repository_count}} Recently Repositories </h5>
+            <a href= "{% url 'create-repository' %} ">Create Repository</a>
+    
+            {% include 'srbase/feed_component.html' %}
+    
+        </div>
+
+    </div>
+
+    <div>
+       {% include 'srbase/browse.html' %}
+    </div>
+
+    
+</div>
+
+
+{% endblock content %}

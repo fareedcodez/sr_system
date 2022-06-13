@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<div>
+    <h4>All Authors</h4>
+    <hr>
+    
+
+    {% for user in authors %}
+    
+    <div>
+      <a href = "{% url 'user-profile' repository.author.id %}">@{{repository.author.username}}</a>
+     </div>
+    
+    {% endfor %}
+</div>
+
+
+{% endblock content %}
