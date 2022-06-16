@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from multiprocessing import context
 from unicodedata import name
 from django.http import HttpResponse
@@ -12,8 +10,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
-from .models import College, Repository,Title
-from .form import RepositoryForm
+from .models import College, Repository
+from .form import RepositoryForm,UserForm
+from django.http import StreamingHttpResponse
+from wsgiref.util import FileWrapper
+import mimetypes
+import os
+from django.utils.datastructures import MultiValueDictKeyError
 
 # Create your views here.
 
@@ -76,11 +79,25 @@ def collegePage(request):
     context={'colleges' : colleges}
     return render(request, 'srbase/community.html', context)
 
-def titlePage(request):
+def collegePage(request):
     q= request.GET.get('q') if request.GET.get('q') != None else ''
-    titles = Title.objects.filter(name__icontains=q)
-    context={'titles' : titles}
-    return render(request, 'srbase/titles_component.html', context)
+    colleges = College.objects.filter(name__icontains=q)
+    context={'colleges' : colleges}
+    return render(request, 'srbase/communities.html', context)
+
+# def download(request):
+#     base_dir= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#     filename='docfile'
+#     filepath= base_dir + '/download/' + filename
+#     thefile=filepath
+#     filename= os.path.basename(thefile)
+#     chunk_size=8192
+#     reponse=StreamingHttpResponse(FileWrapper(open(thefile, 'rb'),chunk_size),
+#     content_type=mimetypes.guess_type(thefile)[0])
+#     response['Content-Length']=os.path.getsize(thefile)
+#     response['Content-Disposition']="Attachment;filename=%s" % filename
+#     return response
+
     
 
 def home(request):
@@ -89,7 +106,7 @@ def home(request):
 
     repositories = Repository.objects.filter(
         Q(college__name__icontains=q) |
-        Q(title__name__icontains=q) |
+        Q(title__icontains=q) |
         Q(description__icontains=q)
     )
     
@@ -107,45 +124,52 @@ def repository(request,pk):
     return render(request, "srbase/repository.html", context)
 
 
-
-def title(request):
-     
-    titles = Title.objects.all()
-    context = {'titles' : titles}
     
-    return render(request,'srbase/titles.html', context)
+
+# def title(request):
+#     q= request.GET.get('q') if request.GET.get('q') != None else ''
+#     titles = Title.objects.filter(name__icontains=q)
+#     context={'titles' : titles}
+#     return render(request,'srbase/titles.html', context)
 
 def authorsPage(request, pk):
      
     authors = User.objects.get(id=pk)
     context = {'authors' : authors}
+
     
     return render(request,'srbase/authors.html', context)
     
 @login_required(login_url='login')
 def createRepository(request):
     form = RepositoryForm()
+    colleges= College.objects.all()
     repositories= Repository.objects.all()
     if request.method == 'POST':
-        form = RepositoryForm(request.POST, request.FILES)
-        uploaded_file = request.FILES['docfile']
-        print(uploaded_file.name)
-        print(uploaded_file.size)
+        college_name=request.POST.get('college')
+        college, created=College.objects.get_or_create(name=college_name)
+        # form = RepositoryForm()
         
-        if form.is_valid():
-            repository = form.save(commit=False)
-            repository.author = request.user
-            repository.save()
-            return redirect('home')
-        
-    context = {'form': form, 'repositories': repositories}
-    return render(request, 'srbase/create_repository.html', context)
+        # if form.is_valid():
+        #     repository=form.save(commit=False)
+        #     repository.host=request.user
+        #     repository.save()
+        Repository.objects.create(
+            author = request.user,
+            college = college,
+            title= request.POST.get('title'),
+            description= request.POST.get('description'),
+        )
+        return redirect('home')
+  
+    context = {'form': form, 'repositories': repositories, 'colleges':colleges}
+    return render(request, 'srbase/repository_form.html', context)
 
 @login_required(login_url='login')
 def updateRepository(request, pk):
     repository = Repository.objects.get(id =pk)
     form = RepositoryForm(instance=repository)
-    
+    colleges= College.objects.all()
     if request.user != repository.author:
         return HttpResponse('Your are not Allowed here...!!')
         
@@ -157,8 +181,8 @@ def updateRepository(request, pk):
             form.save()
             return redirect('home')
     
-    context = {'form' : form}
-    return render(request, 'srbase/create_repository.html', context)
+    context = {'form' : form, 'colleges':colleges}
+    return render(request, 'srbase/repository_form.html', context)
 
 @login_required(login_url='login')
 def deleteRepository(request, pk):
@@ -171,3 +195,16 @@ def deleteRepository(request, pk):
         repository.delete()
         return redirect('home')
     return render(request, 'srbase/delete.html', {'obj':repository})
+
+@login_required(login_url='login')
+def updateUser(request):
+    user = request.user
+    form= UserForm(instance =user)
+    if request.method == 'POST':
+        form= UserForm(request.POST,  instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile', pk=user.id)
+    
+    context= {'form' : form}
+    return render(request, 'srbase/update-user.html', context)
