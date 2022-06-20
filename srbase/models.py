@@ -15,11 +15,10 @@ class College(models.Model):
 
 
 class Repository(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, default="")
-    college = models.ForeignKey(College, on_delete=models.CASCADE, null=True)
-    docfile = models.FileField(upload_to= 
-    'document/%d/%m/%Y', default='DEFAULT VALUE',null = True, )
+    college = models.ForeignKey(College, on_delete=models.SET_NULL, null=True)
+   
     description = models.TextField(null=True, blank=True)
     authors = models.ManyToManyField(User, related_name='authors',blank=True)
     updated = models.DateTimeField(auto_now=True)

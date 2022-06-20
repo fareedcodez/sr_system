@@ -1,0 +1,41 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<div class="col-lg-4 block border">
+    <form action="/send_mail_plain_with_file" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class ="control-label">
+                Email:
+            </label>
+            <input type="text" name="email" class="form-control">
+
+        </div>
+        <div class="form-group">
+            <label class ="control-label">
+                Subject:
+            </label>
+            <input type="text" name="subject" class="form-control">
+
+        </div>
+        <div class="form-group">
+            <label class ="control-label">
+                Message:
+            </label>
+            <textarea name="message" class="form-control"  rows="5"></textarea>
+
+        </div>
+        <div class="form-group">
+            <label class ="control-label">
+                File:
+            </label>
+            <input type="file" id="file" name="file">
+
+        </div>
+    
+    </form>
+</div>
+
+
+{% endblock content%}

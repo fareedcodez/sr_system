@@ -12,6 +12,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from .models import College, Repository
 from .form import RepositoryForm,UserForm
+from django.core.mail import send_mail,EmailMessage,EmailMultiAlternatives
+import imaplib
+import datetime
+import email
+import getpass
 from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
 import mimetypes
@@ -27,7 +32,7 @@ def loginPage(request):
         return redirect('home')
     
     if request.method == 'POST':
-        username= request.POST.get('username').lower()
+        username= request.POST.get('username')
         password = request.POST.get('password')
         
         try:
@@ -144,10 +149,10 @@ def authorsPage(request, pk):
 def createRepository(request):
     form = RepositoryForm()
     colleges= College.objects.all()
-    repositories= Repository.objects.all()
+    
     if request.method == 'POST':
         college_name=request.POST.get('college')
-        college, created=College.objects.get_or_create(name=college_name)
+        college, created= College.objects.get_or_create(name= college_name)
         # form = RepositoryForm()
         
         # if form.is_valid():
@@ -160,9 +165,11 @@ def createRepository(request):
             title= request.POST.get('title'),
             description= request.POST.get('description'),
         )
+        
         return redirect('home')
+    
   
-    context = {'form': form, 'repositories': repositories, 'colleges':colleges}
+    context = {'form': form,  'colleges':colleges}
     return render(request, 'srbase/repository_form.html', context)
 
 @login_required(login_url='login')
@@ -208,3 +215,16 @@ def updateUser(request):
     
     context= {'form' : form}
     return render(request, 'srbase/update-user.html', context)
+
+def submitPage(request):
+    message = request.POST.get('message','')
+    subject = request.POST.get('subject','')
+    mail_id = request.POST.get('email','')
+    email = EmailMessage(subject,message,'', [''])
+    email.content_subtype = 'html'
+
+    file = request.FILES['file']   
+    email.attach(file.name,file.read(),file.content_type)
+
+    email.send()
+    return HttpResponse('Sent')

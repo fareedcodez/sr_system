@@ -12,6 +12,7 @@ urlpatterns = [
     
     path('',views.home, name= 'home'),
     path('repository/<str:pk>/',views.repository, name= 'repository'),
+    path('send_mail_plain_with_file/', views.submitPage, name= "send_mail_plain_with_file"),
 #     path('download/', views.download, 'download'),
 
 
