@@ -11,6 +11,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from .models import College, Repository
+from .form import UploadFileForm
+from django.views.generic.edit import FormView
+from .form import FileFieldForm
+# from somewhere import handle_uploaded_file
 from .form import RepositoryForm,UserForm
 from django.core.mail import send_mail,EmailMessage,EmailMultiAlternatives
 import imaplib
@@ -32,7 +36,7 @@ def loginPage(request):
         return redirect('home')
     
     if request.method == 'POST':
-        username= request.POST.get('username')
+        username= request.POST.get('username').lower()
         password = request.POST.get('password')
         
         try:
@@ -148,17 +152,27 @@ def authorsPage(request, pk):
 @login_required(login_url='login')
 def createRepository(request):
     form = RepositoryForm()
+    # if request.method == 'POST':
+    #     form = RepositoryForm(request.POST or None)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect('home')
+    
     colleges= College.objects.all()
     
     if request.method == 'POST':
         college_name=request.POST.get('college')
         college, created= College.objects.get_or_create(name= college_name)
-        # form = RepositoryForm()
+        form = RepositoryForm()
+        uploaded_file = request.FILES['file']
+        print(uploaded_file.name)
+        print(uploaded_file.size)
         
-        # if form.is_valid():
-        #     repository=form.save(commit=False)
-        #     repository.host=request.user
-        #     repository.save()
+        if form.is_valid():
+
+            repository=form.save(commit=False)
+            repository.host=request.user
+            repository.save()
         Repository.objects.create(
             author = request.user,
             college = college,
@@ -167,9 +181,10 @@ def createRepository(request):
         )
         
         return redirect('home')
+        
     
   
-    context = {'form': form,  'colleges':colleges}
+    context = {'form': form}
     return render(request, 'srbase/repository_form.html', context)
 
 @login_required(login_url='login')
@@ -180,13 +195,15 @@ def updateRepository(request, pk):
     if request.user != repository.author:
         return HttpResponse('Your are not Allowed here...!!')
         
-    
     if request.method == 'POST':
-        form = RepositoryForm(request.POST, instance=repository )
-       
-        if form.is_valid():
-            form.save()
-            return redirect('home')
+        college_name=request.POST.get('college')
+        college, created = College.objects.get_or_create(name= college_name)
+        repository.title=request.POST.get('title')
+        repository.college=college
+        repository.description=request.POST.get('description')
+        repository.save()
+        
+        return redirect('home')
     
     context = {'form' : form, 'colleges':colleges}
     return render(request, 'srbase/repository_form.html', context)
@@ -223,8 +240,39 @@ def submitPage(request):
     email = EmailMessage(subject,message,'', [''])
     email.content_subtype = 'html'
 
-    file = request.FILES['file']   
-    email.attach(file.name,file.read(),file.content_type)
+    file = request.FILES.get('file')   
+    # email.attach(file.name,file.read()
 
     email.send()
     return HttpResponse('Sent')
+
+
+def submit(request):
+    return render(request,'srbase/submit.html')
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request.FILES['file'])
+            return redirect(request, 'srbase/create-repository.html')
+    else:
+        form = UploadFileForm()
+    return render(request, 'srbase/upload.html', {'form': form})
+
+class FileFieldFormView(FormView):
+    form_class = FileFieldForm
+    template_name = 'srbase/upload.html'  # Replace with your template.
+    success_url = 'create-repository'  # Replace with your URL or reverse().
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = request.FILES.getlist('file_field')
+        if form.is_valid():
+            for f in files:
+                ...  # Do something with each file.
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

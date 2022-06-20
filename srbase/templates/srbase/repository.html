@@ -19,10 +19,16 @@
      
     </div>
     <div class="room__details">
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quasi, tenetur laudantium? Dicta repellendus
-                rerum consectetur, voluptatem repudiandae eum ea porro cupiditate provident nulla, deserunt, ab ipsum
-                corporis laboriosam deleniti molestias?
+                {{repository.description}}
               </div>
+              <HR></HR>
+
+              <div class="">
+                <h4 class="text-dark font-weight-bold mb-4 underline-align-left">ATTACHMENT FILE</h6>
+                    <p >{{repository.file}}</p>
+            </div>
+            
+            
   
               {% if repository.author == request.user%}
               <div class="room__bottomLeft">

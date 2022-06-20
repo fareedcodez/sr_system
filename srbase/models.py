@@ -18,7 +18,7 @@ class Repository(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, default="")
     college = models.ForeignKey(College, on_delete=models.SET_NULL, null=True)
-   
+    file = models.FileField(upload_to= 'document/%d/%m/%Y', default='',null = True, )
     description = models.TextField(null=True, blank=True)
     authors = models.ManyToManyField(User, related_name='authors',blank=True)
     updated = models.DateTimeField(auto_now=True)
@@ -29,7 +29,8 @@ class Repository(models.Model):
     
     def __str__(self):
         return self.title
-    
+
+
 
 
 

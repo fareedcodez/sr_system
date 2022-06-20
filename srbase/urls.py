@@ -13,6 +13,7 @@ urlpatterns = [
     path('',views.home, name= 'home'),
     path('repository/<str:pk>/',views.repository, name= 'repository'),
     path('send_mail_plain_with_file/', views.submitPage, name= "send_mail_plain_with_file"),
+     path('upload/',views.upload_file, name='upload'),
 #     path('download/', views.download, 'download'),
 
 
@@ -23,5 +24,6 @@ urlpatterns = [
     path('colleges/',views.collegePage, name='communities'),
     # path('titles/', views.titlePage, name= "titles"),
     path('authors/<str:pk>/', views.authorsPage, name= "authors"),
+    path('submit/', views.submit, name= "submit"),
     
 ]

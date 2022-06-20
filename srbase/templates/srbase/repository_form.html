@@ -22,10 +22,10 @@
           {% csrf_token %}
 
           <div class="form__group">
-            <label for="room_topic">Enter College</label>
-             <input required type ="text" value= "{{repository.college.name}}" name = "topic" list = "topic-list "/>
-             <datalist id = "topic-list">
-               <select id = "room_topic">
+            <label for="repository_college">Enter College</label>
+             <input required type ="text" value= "{{repository.college.name}}" name = "college" list = "college-list "/>
+             <datalist id = "college-list">
+               <select id = "repository_college">
                  {% for colleege in colleges %}
                  <option value = "{{college.name}}">{{college.name}}</option>
                  {% endfor %}
@@ -39,28 +39,17 @@
             <label for="repository_title">Repository Title</label>
             {{form.title}}
           </div>
-          <div class="form__group">
-            <label for="repository_docfile">Repository Document</label>
-            {{form.docfile}}
-          </div>
+          
 
           <div class="form__group">
             <label for="room_description">Repository About/Description</label>
             {{form.description}}
           </div>
+          <div class="form__group">
+            <label for="repository_file">Repository Document</label>
+            {{form.file}}
+          </div>
 
-          <!-- <div class="form__group">
-            <label for="room_topic">Topic</label>
-            <input required type="text" name="topic" id="room_topic" list="topic-list" />
-            <datalist id="topic-list">
-              <select id="room_topic">
-                <option value="">Select your topic</option>
-                <option value="Python">Python</option>
-                <option value="Django">Django</option>
-              </select>
-            </datalist>
-
-          </div> -->
 
 
           <div class="form__action">

@@ -3,7 +3,8 @@
 {% block content %}
 
 <div class="col-lg-4 block border">
-    <form action="/send_mail_plain_with_file" method="POST" enctype="multipart/form-data">
+    <form action="/send_mail_plain_with_file" method="post
+    " enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group">
             <label class ="control-label">
@@ -33,6 +34,7 @@
             <input type="file" id="file" name="file">
 
         </div>
+        <input type="submit" value="submit">
     
     </form>
 </div>
