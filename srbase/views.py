@@ -237,14 +237,14 @@ def submitPage(request):
     message = request.POST.get('message','')
     subject = request.POST.get('subject','')
     mail_id = request.POST.get('email','')
-    email = EmailMessage(subject,message,'', [''])
+    email = EmailMultiAlternatives(subject,message,'sitangwesa6@gmail.com', [mail_id])
     email.content_subtype = 'html'
 
     file = request.FILES.get('file')   
     # email.attach(file.name,file.read()
 
     email.send()
-    return HttpResponse('Sent')
+    return redirect('home')
 
 
 def submit(request):

@@ -131,8 +131,7 @@ MEDIA_ROOT = BASE_DIR / 'static/media'
 
 
 #smpt configuration
-EMAIL_BACKEND = 'django.core.mail.backend.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USER_TLS = True
 EMAIL_HOST_USER = 'sitangwesa6@gmail.com'
